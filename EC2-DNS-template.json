@@ -1,0 +1,81 @@
+{
+ "AWSTemplateFormatVersion" : "2010-09-09",
+ "Parameters" : {
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type" : "String"
+    }
+  },
+
+  "Mappings" : {
+    "RegionMap" : {
+      "us-east-1" : {"AMI" : "ami-8c1fece5"},
+      "us-west-2" : {"AMI" : "ami-ccf297fc"},
+      "us-west-1" : {"AMI" : "ami-3bc9997e"},
+      "eu-west-1" : {"AMI" : "ami-47cefa33"},
+      "ap-southeast-1" : {"AMI" : "ami-6af08e38"},
+      "ap-northeast-1" : {"AMI" : "ami-300ca731"}
+    }
+  },
+
+  "Resources" : {
+    "Ec2Instance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+	    "UserData" : { "Fn::Base64" : { "Fn::Join" : ["",[
+            "#!/bin/bash -ex","\n",
+	    "yum install bind git -y\n",
+	    "curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$(ip l l eth0 | grep ether | sed -e 's/.*link\/ether\ \([^ ]*\) brd.*/\1/')/vpc-id > /tmp/vpc-id\n",
+	    "mkdir /etc/named/ec2-dns\n",
+            "curl -X PUT -H 'Content-Type:' --data-binary '{\"Status\" : \"SUCCESS\",",
+                                                           "\"Reason\" : \"The application myapp is ready\",",
+                                                           "\"UniqueId\" : \"myapp\",",
+                                                           "\"Data\" : \"Done\"}' ",
+                  "\"", {"Ref" : "WaitForInstanceWaitHandle"},"\"\n" ]]}}
+      }
+    },
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable Access to Rails application via port 3000 and SSH access via port 22",
+        "SecurityGroupIngress" : [ {
+          "IpProtocol" : "tcp",
+          "FromPort" : "22",
+          "ToPort" : "22",
+          "CidrIp" : "0.0.0.0/0"
+        }, {
+          "IpProtocol" : "udp",
+          "FromPort" : "3000",
+          "ToPort" : "3000",
+          "CidrIp" : "0.0.0.0/0"
+        } ]
+      }
+    },
+
+    "WaitForInstanceWaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle",
+      "Properties" : {
+      }
+    },
+
+    "WaitForInstance" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "Ec2Instance",
+      "Properties" : {
+        "Handle" : {"Ref" : "WaitForInstanceWaitHandle"},
+        "Timeout" : "300"
+      }
+    }
+  },
+
+  "Outputs" : {
+    "WebsiteURL" : {
+      "Description" : "Your AWS dyanmic DNS service is ready to go",
+      "Value" : { "Fn::Join" : ["", [ "http://", { "Fn::GetAtt" : [ "Ec2Instance", "PrivateIPAddress" ] }, ":53" ]]}
+    }
+  }
+}
