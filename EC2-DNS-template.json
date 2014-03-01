@@ -27,9 +27,11 @@
         "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
 	    "UserData" : { "Fn::Base64" : { "Fn::Join" : ["",[
             "#!/bin/bash -ex","\n",
-	    "yum install bind git -y\n",
-	    "curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$(ip l l eth0 | grep ether | sed -e 's/.*link\/ether\ \([^ ]*\) brd.*/\1/')/vpc-id > /tmp/vpc-id\n",
-	    "mkdir /etc/named/ec2-dns\n",
+            "yum install bind git -y","\n",
+            "export AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone|sed -e s/.$//)","\n",
+	    "MAC=$(ip l l eth0 | grep ether | awk '{ print $2 }') ; curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-id > /tmp/vpc-id","\n",
+            "mkdir /etc/named/ec2-dns","\n",
+	    "/etc/init.d/named start","\n",
             "curl -X PUT -H 'Content-Type:' --data-binary '{\"Status\" : \"SUCCESS\",",
                                                            "\"Reason\" : \"The application myapp is ready\",",
                                                            "\"UniqueId\" : \"myapp\",",
@@ -49,8 +51,8 @@
           "CidrIp" : "0.0.0.0/0"
         }, {
           "IpProtocol" : "udp",
-          "FromPort" : "3000",
-          "ToPort" : "3000",
+          "FromPort" : "53",
+          "ToPort" : "53",
           "CidrIp" : "0.0.0.0/0"
         } ]
       }
@@ -75,7 +77,7 @@
   "Outputs" : {
     "WebsiteURL" : {
       "Description" : "Your AWS dyanmic DNS service is ready to go",
-      "Value" : { "Fn::Join" : ["", [ "http://", { "Fn::GetAtt" : [ "Ec2Instance", "PrivateIPAddress" ] }, ":53" ]]}
+      "Value" : { "Fn::Join" : ["", [ "http://", { "Fn::GetAtt" : [ "Ec2Instance", "PrivateIp" ] }, ":53" ]]}
     }
   }
 }
