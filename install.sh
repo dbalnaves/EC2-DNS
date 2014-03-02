@@ -4,7 +4,7 @@ MAC=$(ip l l eth0 | grep ether | awk '{ print $2 }')
 VPC=$(curl -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$MAC/vpc-id)
 
 sed -e 's/options {/options {\n        empty-zones-enable yes;/' -i /etc/named.conf
-echo 'include "/etc/named/named.ddns.conf";' >> /etc/named.conf
+echo 'include "/etc/named/ec2-dns/named.ddns.conf";' >> /etc/named.conf
 
 mkdir /etc/named/ec2-dns
 wget -P /etc/named/ec2-dns https://github.com/dbalnaves/EC2-DNS/raw/master/named.ddns.conf
