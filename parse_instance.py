@@ -17,20 +17,21 @@ print "ZONE " + sys.argv[2]
 
 for entry in data['Reservations']:
     for item in entry['Instances']:
-	if item['VpcId'] == sys.argv[1] and item['State']['Name'] != 'Terminated':
-	    print "UPDATE ADD " + item['InstanceId'] + "." + sys.argv[2] + " 3600 A " + item['PrivateIpAddress']
-	    for instance in existing_instances:
-	        if item['InstanceId'] in instance:
-		    existing_instances.remove(instance)
-	    exit
-	    for i in range(0,len(item['Tags']),1):
-		if item['Tags'][i]['Key'] == "DNS":
-		    print "UPDATE ADD " + item['Tags'][i]['Value'] + "." + sys.argv[2] + " 3600 CNAME " + item['InstanceId'] + "." + sys.argv[2] + "."
-		    for instance in existing_instances:
-			if item['Tags'][i]['Value'] in instance:
-			    existing_instances.remove(instance)
-		    exit
-	    exit
+	if item['State']['Name'] != 'Terminated':
+	    if item['VpcId'] == sys.argv[1]:
+		print "UPDATE ADD " + item['InstanceId'] + "." + sys.argv[2] + " 3600 A " + item['PrivateIpAddress']
+		for instance in existing_instances:
+		    if item['InstanceId'] in instance:
+			existing_instances.remove(instance)
+	        exit
+	        for i in range(0,len(item['Tags']),1):
+		    if item['Tags'][i]['Key'] == "DNS":
+		        print "UPDATE ADD " + item['Tags'][i]['Value'] + "." + sys.argv[2] + " 3600 CNAME " + item['InstanceId'] + "." + sys.argv[2] + "."
+		        for instance in existing_instances:
+		  	    if item['Tags'][i]['Value'] in instance:
+			        existing_instances.remove(instance)
+		        exit
+	        exit
     exit
 exit
 
