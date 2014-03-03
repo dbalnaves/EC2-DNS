@@ -17,6 +17,6 @@ chmod 664 /var/named/named.ec2-dns.jnl /var/named/named.ec2-dns
 chmod 775 /var/named
 
 echo "AWS_DEFAULT_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone|sed -e s/.$//)" > /etc/cron.d/ec2-dns
-echo "*/2 * * * * root (/usr/local/bin/parse_instance.py $VPC $1 | nsupdate" >> /etc/cron.d/ec2-dns)
+echo "*/2 * * * * root /usr/local/bin/parse_instance.py $VPC $1 | nsupdate" >> /etc/cron.d/ec2-dns
 
 /etc/init.d/named start
