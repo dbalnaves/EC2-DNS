@@ -15,6 +15,7 @@ cp /var/named/named.empty /var/named/named.ec2-dns
 touch /var/named/named.ec2-dns.jnl
 chown root:named /var/named/named.ec2-dns.jnl /var/named/named.ec2-dns
 chmod 664 /var/named/named.ec2-dns.jnl /var/named/named.ec2-dns
+chmod 775 /var/named
 
 echo "*/2 * * * * root /usr/local/bin/parse_instance.py $VPC $1 | nsupdate" > /etc/cron.d/ec2-dns
 
