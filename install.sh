@@ -12,7 +12,6 @@ wget -P /usr/local/bin https://github.com/dbalnaves/EC2-DNS/raw/master/parse_ins
 chmod 755 /usr/local/bin/parse_instance.py
 
 cp /var/named/named.empty /var/named/named.ec2-dns
-touch /var/named/named.ec2-dns.jnl
 chown root:named /var/named/named.ec2-dns.jnl /var/named/named.ec2-dns
 chmod 664 /var/named/named.ec2-dns.jnl /var/named/named.ec2-dns
 chmod 775 /var/named
