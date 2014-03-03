@@ -17,7 +17,7 @@ print "ZONE " + sys.argv[2]
 
 for entry in data['Reservations']:
     for item in entry['Instances']:
-	if item['State']['Name'] != 'Terminated':
+	if item['State']['Name'] != 'terminated':
 	    if item['VpcId'] == sys.argv[1]:
 		print "UPDATE ADD " + item['InstanceId'] + "." + sys.argv[2] + " 3600 A " + item['PrivateIpAddress']
 		for instance in existing_instances:
