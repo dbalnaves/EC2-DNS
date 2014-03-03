@@ -11,6 +11,10 @@ wget -P /etc/named/ec2-dns https://github.com/dbalnaves/EC2-DNS/raw/master/named
 wget -P /usr/local/bin https://github.com/dbalnaves/EC2-DNS/raw/master/parse_instance.py
 chmod 755 /usr/local/bin/parse_instance.py
 
+touch /var/named/named.empty.jnl
+chown root:named /var/named/named.empty.jnl /var/named/named.empty
+chmod 664 /var/named/named.empty.jnl /var/named/named.empty
+
 echo "*/2 * * * * root /usr/local/bin/parse_instance.py $VPC $1 | nsupdate" > /etc/cron.d/ec2-dns
 
 /etc/init.d/named start
