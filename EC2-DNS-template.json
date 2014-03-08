@@ -12,7 +12,7 @@
     "DnsSuffix" : {
       "Description" : "Suffix to used for EC2-DNS records",
       "Type" : "String"
-    },
+    }
   },
 
   "Mappings" : {
