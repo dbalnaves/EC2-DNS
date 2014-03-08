@@ -4,7 +4,15 @@
     "KeyName" : {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
       "Type" : "String"
-    }
+    },
+    "VpcId" : {
+      "Description" : "Target VPC to deploy EC2-DNS",
+      "Type" : "String"
+    },
+    "DnsSuffix" : {
+      "Description" : "Suffix to used for EC2-DNS records",
+      "Type" : "String"
+    },
   },
 
   "Mappings" : {
